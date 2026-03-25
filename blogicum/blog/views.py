@@ -115,7 +115,7 @@ def profile(request, username):
             category__is_published=True,
         )
     else:
-        posts = posts.filter(category__is_published=True)
+        pass
 
     posts = posts.order_by('-is_pinned', '-pub_date').annotate(comment_count=Count('comments'))
 
