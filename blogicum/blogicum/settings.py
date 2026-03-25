@@ -6,11 +6,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = "django-insecure-0@d109%bm_nps_m*ypdw7tjzggz33=e+okh5u$6+mxwj(2gsj)"
 DEBUG = True
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 INSTALLED_APPS = [
     'blog.apps.BlogConfig',  # ТОЛЬКО ТАК!
     'pages.apps.PagesConfig',
+    'django_bootstrap5', 
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -86,3 +87,10 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = (
     "django.db.models.BigAutoField"
 )
+
+LOGIN_REDIRECT_URL = 'blog:index'
+LOGOUT_REDIRECT_URL = 'blog:index'
+LOGIN_URL = 'login'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
