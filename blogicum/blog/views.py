@@ -9,8 +9,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.admin.views.decorators import staff_member_required
 
 from blog.models import Category, Post
-from .forms import RegistrationForm, PostForm, ProfileEditForm, CommentForm
-from .models import Comment
+from .forms import RegistrationForm, PostForm, ProfileEditForm, CommentForm, AvatarForm
+from .models import Comment, Profile
 
 User = get_user_model()
 
@@ -183,14 +183,18 @@ def toggle_pin(request, post_id):
 
 @login_required
 def edit_profile(request):
-    if request.method == "POST":
-        form = ProfileEditForm(request.POST, instance=request.user)
-        if form.is_valid():
-            form.save()
-            return redirect("blog:profile", username=request.user.username)
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    if request.method == 'POST':
+        user_form = ProfileEditForm(request.POST, instance=request.user)
+        avatar_form = AvatarForm(request.POST, request.FILES, instance=profile)
+        if user_form.is_valid() and avatar_form.is_valid():
+            user_form.save()
+            avatar_form.save()
+            return redirect('blog:profile', username=request.user.username)
     else:
-        form = ProfileEditForm(instance=request.user)
-    return render(request, "blog/edit_profile.html", {"form": form})
+        user_form = ProfileEditForm(instance=request.user)
+        avatar_form = AvatarForm(instance=profile)
+    return render(request, 'blog/edit_profile.html', {'user_form': user_form, 'avatar_form': avatar_form})
 
 
 # ---------- Комментарии ----------

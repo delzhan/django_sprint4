@@ -3,6 +3,11 @@
   Страница пользователя {{ profile.username }}
 {% endblock %}
 {% block content %}
+  {% if profile.avatar %}
+    <div class="text-center mb-3">
+      <img src="{{ profile.avatar.url }}" width="150" height="150" class="rounded-circle img-thumbnail">
+    </div>
+  {% endif %}
   <h1 class="mb-5 text-center ">Страница пользователя {{ profile.username }}</h1>
   <small>
     <ul class="list-group list-group-horizontal justify-content-center mb-3">

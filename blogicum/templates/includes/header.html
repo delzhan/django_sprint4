@@ -7,7 +7,7 @@
         Блогикум
       </a>
       {% with request.resolver_match.view_name as view_name %}
-        <ul class="nav  nav-pills">
+        <ul class="nav nav-pills">
           <li class="nav-item">
             <a class="nav-link {% if view_name == 'pages:about' %} text-white {% endif %}" href="{% url 'pages:about' %}">
               О проекте
@@ -20,19 +20,17 @@
           </li>
           {% if user.is_authenticated %}
             <div class="btn-group" role="group" aria-label="Basic outlined example">
-              <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset"
-                  href="{% url 'blog:create_post' %}">Написать пост</a></button>
-              <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset"
-                  href="{% url 'blog:profile' user.username %}">{{ user.username }}</a></button>
-              <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset"
-                  href="{% url 'logout' %}">Выйти</a></button>
+              <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset" href="{% url 'blog:create_post' %}">Написать пост</a></button>
+              {% if user.profile.avatar %}
+                <img src="{{ user.profile.avatar.url }}" width="30" height="30" class="rounded-circle me-2">
+              {% endif %}
+              <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset" href="{% url 'blog:profile' user.username %}">{{ user.username }}</a></button>
+              <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset" href="{% url 'logout' %}">Выйти</a></button>
             </div>
           {% else %}
             <div class="btn-group" role="group" aria-label="Basic outlined example">
-              <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset"
-                  href="{% url 'login' %}">Войти</a></button>
-              <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset"
-                  href="{% url 'blog:registration' %}">Регистрация</a></button>
+              <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset" href="{% url 'login' %}">Войти</a></button>
+              <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset" href="{% url 'blog:registration' %}">Регистрация</a></button>
             </div>
           {% endif %}
         </ul>

@@ -12,6 +12,9 @@
   <div class="media mb-4">
     <div class="media-body">
       <h5 class="mt-0">
+        {% if comment.author.profile.avatar %}
+          <img src="{{ comment.author.profile.avatar.url }}" width="30" height="30" class="rounded-circle me-2">
+        {% endif %}
         {{ comment.author.username }}
         <small class="text-muted">{{ comment.created_at|date:"d E Y, H:i" }}</small>
       </h5>

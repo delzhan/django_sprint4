@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 User = get_user_model()
 
@@ -25,6 +27,9 @@ class Category(models.Model):
     class Meta:
         verbose_name = "категория"
         verbose_name_plural = "Категории"
+    
+    def __str__(self):
+        return self.title
 
 
 class Location(models.Model):
@@ -45,7 +50,9 @@ class Location(models.Model):
     class Meta:
         verbose_name = "местоположение"
         verbose_name_plural = "Местоположения"
-
+        
+    def __str__(self):
+        return self.name
 
 class Post(models.Model):
     title = models.CharField(max_length=256, verbose_name="Заголовок")
@@ -117,3 +124,22 @@ class Comment(models.Model):
         ordering = ('created_at',)
         verbose_name = 'комментарий'
         verbose_name_plural = 'Комментарии'
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    avatar = models.ImageField('Аватар', upload_to='avatars/', blank=True, null=True)
+
+    def __str__(self):
+        return f'Профиль {self.user.username}'
+
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()
