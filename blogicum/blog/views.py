@@ -123,8 +123,11 @@ def profile(request, username):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
+    user_profile = profile_user.profile
+
     context = {
-        "profile": profile_user,
+        "profile_user": profile_user,
+        "profile": user_profile, 
         "page_obj": page_obj,
     }
     return render(request, "blog/profile.html", context)
