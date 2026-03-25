@@ -87,6 +87,11 @@ class Post(models.Model):
         blank=True,
         null=True,
     )
+    is_pinned = models.BooleanField(
+        default=False,
+        verbose_name='Закреплённый пост',
+        help_text='Отметьте, чтобы пост отображался первым в ленте.',
+    )
 
     class Meta:
         verbose_name = "публикация"

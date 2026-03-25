@@ -1,0 +1,82 @@
+/* Основной фон и текст */
+body {
+    background-color: #fff;
+    color: #4a4a4a;
+}
+
+/* Шапка */
+.navbar {
+    background-color: #ffe6f0 !important;
+}
+.navbar-brand {
+    color: #ff6699 !important;
+}
+.nav-link {
+    color: #ff6699 !important;
+}
+.nav-link:hover {
+    color: #ff3366 !important;
+}
+
+/* Кнопки */
+.btn-outline-primary {
+    color: #ff6699;
+    border-color: #ffccdd;
+}
+.btn-outline-primary:hover {
+    background-color: #ff99bb;
+    border-color: #ff99bb;
+    color: white;
+}
+.btn-primary {
+    background-color: #ff99bb;
+    border-color: #ff99bb;
+    color: white;
+}
+.btn-primary:hover {
+    background-color: #ff6699;
+    border-color: #ff6699;
+}
+
+/* Ссылки */
+a {
+    color: #ff6699;
+    text-decoration: none;
+}
+a:hover {
+    color: #ff3366;
+    text-decoration: underline;
+}
+
+/* Карточки постов */
+.card {
+    border-color: #ffccdd;
+}
+.card-header {
+    background-color: #fff0f5;
+    border-bottom-color: #ffccdd;
+}
+
+/* Пагинация */
+.page-link {
+    color: #ff6699;
+    border-color: #ffccdd;
+}
+.page-link:hover {
+    background-color: #ffe6f0;
+    color: #ff3366;
+}
+.page-item.active .page-link {
+    background-color: #ff99bb;
+    border-color: #ff99bb;
+}
+
+/* Формы */
+.form-control:focus {
+    border-color: #ff99bb;
+    box-shadow: 0 0 0 0.2rem rgba(255, 153, 187, 0.25);
+}
+.form-check-input:checked {
+    background-color: #ff99bb;
+    border-color: #ff99bb;
+}

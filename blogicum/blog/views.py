@@ -6,6 +6,7 @@ from django.core.paginator import Paginator
 from django.db.models import Count, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib.admin.views.decorators import staff_member_required
 
 from blog.models import Category, Post
 from .forms import RegistrationForm, PostForm, ProfileEditForm, CommentForm
@@ -25,7 +26,7 @@ def index(request):
         )
         .select_related("category", "location", "author")
         .annotate(comment_count=Count('comments'))
-        .order_by("-pub_date")
+        .order_by('-is_pinned', '-pub_date') 
     )
     paginator = Paginator(post_list, 10)
     page_number = request.GET.get("page")
@@ -44,7 +45,9 @@ def category_posts(request, category_slug):
         category=category,
         is_published=True,
         pub_date__lte=today,
-    ).select_related("category", "location", "author").annotate(comment_count=Count('comments'))
+    ).select_related("category", "location", "author").annotate(
+        comment_count=Count('comments')
+    ).order_by('-is_pinned', '-pub_date')  
     paginator = Paginator(post_list, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -114,7 +117,7 @@ def profile(request, username):
     else:
         posts = posts.filter(category__is_published=True)
 
-    posts = posts.annotate(comment_count=Count('comments'))
+    posts = posts.order_by('-is_pinned', '-pub_date').annotate(comment_count=Count('comments'))
 
     paginator = Paginator(posts, 10)
     page_number = request.GET.get("page")
@@ -168,6 +171,13 @@ def delete_post(request, post_id):
         return redirect("blog:profile", username=request.user.username)
     return render(request, "blog/create.html", {"form": post})
 
+
+@staff_member_required
+def toggle_pin(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    post.is_pinned = not post.is_pinned
+    post.save()
+    return redirect(request.META.get('HTTP_REFERER', 'blog:index'))
 
 # ---------- Редактирование профиля ----------
 

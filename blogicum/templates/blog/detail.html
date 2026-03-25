@@ -36,6 +36,13 @@
             </a>
           </div>
         {% endif %}
+        {% if user.is_staff %}
+          <div class="mb-2">
+            <a class="btn btn-sm text-muted" href="{% url 'blog:toggle_pin' post.id %}" role="button">
+              {% if post.is_pinned %}Открепить{% else %}Закрепить{% endif %}
+            </a>
+          </div>
+        {% endif %}
         {% include "includes/comments.html" %}
       </div>
     </div>
