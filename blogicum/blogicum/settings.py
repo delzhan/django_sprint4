@@ -5,11 +5,11 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = "django-insecure-0@d109%bm_nps_m*ypdw7tjzggz33=e+okh5u$6+mxwj(2gsj)"
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 INSTALLED_APPS = [
-    'blog.apps.BlogConfig',  # ТОЛЬКО ТАК!
+    'blog.apps.BlogConfig',
     'pages.apps.PagesConfig',
     'django_bootstrap5', 
     'django.contrib.admin',
@@ -94,3 +94,7 @@ LOGIN_URL = 'login'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
+DEFAULT_FROM_EMAIL = 'webmaster@localhost'

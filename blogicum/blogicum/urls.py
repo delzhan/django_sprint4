@@ -1,5 +1,3 @@
-"""URL configuration for blogicum project."""
-
 from django.contrib import admin
 from django.urls import include, path
 from django.conf import settings
@@ -11,7 +9,7 @@ handler500 = 'blog.views.server_error'
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("auth/", include("django.contrib.auth.urls")),  # <-- добавить
+    path("auth/", include("django.contrib.auth.urls")),
     path("", include("blog.urls", namespace="blog")),
     path("pages/", include("pages.urls", namespace="pages")),
 ]

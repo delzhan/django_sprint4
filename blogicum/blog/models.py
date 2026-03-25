@@ -10,8 +10,7 @@ class Category(models.Model):
     slug = models.SlugField(
         unique=True,
         verbose_name="Идентификатор",
-        help_text="Идентификатор страницы для URL; разрешены символы "
-                  "латиницы, цифры, дефис и подчёркивание.",
+        help_text="Идентификатор страницы для URL; разрешены символы латиницы, цифры, дефис и подчёркивание.",
     )
     is_published = models.BooleanField(
         default=True,
@@ -53,8 +52,7 @@ class Post(models.Model):
     text = models.TextField(verbose_name="Текст")
     pub_date = models.DateTimeField(
         verbose_name="Дата и время публикации",
-        help_text="Если установить дату и время в"
-                  " будущем — можно делать отложенные публикации.",
+        help_text="Если установить дату и время в будущем — можно делать отложенные публикации.",
     )
     author = models.ForeignKey(
         User,
@@ -65,6 +63,7 @@ class Post(models.Model):
         Location,
         on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         verbose_name="Местоположение",
     )
     category = models.ForeignKey(
@@ -88,6 +87,28 @@ class Post(models.Model):
         blank=True,
         null=True,
     )
+
     class Meta:
         verbose_name = "публикация"
         verbose_name_plural = "Публикации"
+
+
+class Comment(models.Model):
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Пост'
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Автор комментария'
+    )
+    text = models.TextField(verbose_name='Текст комментария')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Добавлено')
+
+    class Meta:
+        ordering = ('created_at',)
+        verbose_name = 'комментарий'
+        verbose_name_plural = 'Комментарии'
