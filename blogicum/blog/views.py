@@ -1,16 +1,17 @@
+import json
 from datetime import date
 
 from django.contrib.auth import get_user_model, login
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.db.models import Count, Q
-from django.http import Http404
+from django.db.models import Count, Exists, OuterRef, Q, Value, BooleanField
+from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.admin.views.decorators import staff_member_required
 
 from blog.models import Category, Post
 from .forms import RegistrationForm, PostForm, ProfileEditForm, CommentForm, AvatarForm
-from .models import Comment, Profile
+from .models import Comment, Profile, PostLike, CommentLike
 
 User = get_user_model()
 
@@ -26,8 +27,17 @@ def index(request):
         )
         .select_related("category", "location", "author")
         .annotate(comment_count=Count('comments'))
-        .order_by('-is_pinned', '-pub_date') 
+        .order_by('-is_pinned', '-pub_date')
     )
+
+    # Аннотируем is_liked для авторизованных пользователей
+    if request.user.is_authenticated:
+        post_list = post_list.annotate(
+            is_liked=Exists(PostLike.objects.filter(user=request.user, post=OuterRef('pk')))
+        )
+    else:
+        post_list = post_list.annotate(is_liked=Value(False, output_field=BooleanField()))
+
     paginator = Paginator(post_list, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -47,7 +57,15 @@ def category_posts(request, category_slug):
         pub_date__lte=today,
     ).select_related("category", "location", "author").annotate(
         comment_count=Count('comments')
-    ).order_by('-is_pinned', '-pub_date')  
+    ).order_by('-is_pinned', '-pub_date')
+
+    if request.user.is_authenticated:
+        post_list = post_list.annotate(
+            is_liked=Exists(PostLike.objects.filter(user=request.user, post=OuterRef('pk')))
+        )
+    else:
+        post_list = post_list.annotate(is_liked=Value(False, output_field=BooleanField()))
+
     paginator = Paginator(post_list, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -61,18 +79,31 @@ def category_posts(request, category_slug):
 def post_detail(request, id):
     post = get_object_or_404(Post, id=id)
     today = date.today()
-    if (not post.is_published 
-            or post.pub_date.date() > today 
+    if (not post.is_published
+            or post.pub_date.date() > today
             or not post.category.is_published):
         if request.user != post.author:
             raise Http404("Пост не найден")
+
+    # Аннотируем is_liked для поста
+    if request.user.is_authenticated:
+        post.is_liked = PostLike.objects.filter(user=request.user, post=post).exists()
+    else:
+        post.is_liked = False
+
+    # Комментарии с аннотацией is_liked
     comments = post.comments.all()
+    if request.user.is_authenticated:
+        comments = comments.annotate(
+            is_liked=Exists(CommentLike.objects.filter(user=request.user, comment=OuterRef('pk')))
+        )
+    else:
+        comments = comments.annotate(is_liked=Value(False, output_field=BooleanField()))
+
     form = CommentForm()
     context = {"post": post, "comments": comments, "form": form}
     return render(request, "blog/detail.html", context)
 
-
-# ---------- Кастомные страницы ошибок ----------
 
 def page_not_found(request, exception):
     return render(request, "pages/404.html", status=404)
@@ -85,8 +116,6 @@ def csrf_failure(request, reason=""):
 def server_error(request):
     return render(request, "pages/500.html", status=500)
 
-
-# ---------- Работа с пользователями ----------
 
 def registration(request):
     if request.method == "POST":
@@ -114,10 +143,15 @@ def profile(request, username):
             pub_date__lte=today,
             category__is_published=True,
         )
-    else:
-        pass
 
     posts = posts.order_by('-is_pinned', '-pub_date').annotate(comment_count=Count('comments'))
+
+    if request.user.is_authenticated:
+        posts = posts.annotate(
+            is_liked=Exists(PostLike.objects.filter(user=request.user, post=OuterRef('pk')))
+        )
+    else:
+        posts = posts.annotate(is_liked=Value(False, output_field=BooleanField()))
 
     paginator = Paginator(posts, 10)
     page_number = request.GET.get("page")
@@ -127,13 +161,11 @@ def profile(request, username):
 
     context = {
         "profile_user": profile_user,
-        "profile": user_profile, 
+        "profile": user_profile,
         "page_obj": page_obj,
     }
     return render(request, "blog/profile.html", context)
 
-
-# ---------- Работа с публикациями ----------
 
 @login_required
 def create_post(request):
@@ -182,7 +214,6 @@ def toggle_pin(request, post_id):
     post.save()
     return redirect(request.META.get('HTTP_REFERER', 'blog:index'))
 
-# ---------- Редактирование профиля ----------
 
 @login_required
 def edit_profile(request):
@@ -199,8 +230,6 @@ def edit_profile(request):
         avatar_form = AvatarForm(instance=profile)
     return render(request, 'blog/edit_profile.html', {'user_form': user_form, 'avatar_form': avatar_form})
 
-
-# ---------- Комментарии ----------
 
 @login_required
 def add_comment(request, post_id):
@@ -238,3 +267,47 @@ def delete_comment(request, post_id, comment_id):
         comment.delete()
         return redirect('blog:post_detail', id=post_id)
     return render(request, 'blog/comment.html', {'comment': comment})
+
+
+@login_required
+def toggle_post_like(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    like = PostLike.objects.filter(user=request.user, post=post)
+    if like.exists():
+        like.delete()
+        post.likes_count -= 1
+        liked = False
+    else:
+        PostLike.objects.create(user=request.user, post=post)
+        post.likes_count += 1
+        liked = True
+    post.save()
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({
+            'liked': liked,
+            'likes_count': post.likes_count,
+        })
+    return redirect(request.META.get('HTTP_REFERER', 'blog:post_detail'))
+
+
+@login_required
+def toggle_comment_like(request, post_id, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id, post_id=post_id)
+    like = CommentLike.objects.filter(user=request.user, comment=comment)
+    if like.exists():
+        like.delete()
+        comment.likes_count -= 1
+        liked = False
+    else:
+        CommentLike.objects.create(user=request.user, comment=comment)
+        comment.likes_count += 1
+        liked = True
+    comment.save()
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({
+            'liked': liked,
+            'likes_count': comment.likes_count,
+        })
+    return redirect(request.META.get('HTTP_REFERER', 'blog:post_detail'))

@@ -5,6 +5,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <link rel="icon" href="{% static 'img/fav/favicon.ico' %}" type="image">
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/fav/apple-touch-icon.png' %}">
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/fav/favicon-32x32.png' %}">
@@ -16,6 +17,7 @@
     <link rel="stylesheet" href="{% static 'css/custom.css' %}">
   </head>
   <body>
+    <script src="{% static 'js/likes.js' %}"></script>
     {% include "includes/header.html" %}
     <main>
       <div class="container py-5">
