@@ -7,11 +7,12 @@ from django.core.paginator import Paginator
 from django.db.models import Count, Exists, OuterRef, Q, Value, BooleanField
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 
 from blog.models import Category, Post
 from .forms import RegistrationForm, PostForm, ProfileEditForm, CommentForm, AvatarForm
-from .models import Comment, Profile, PostLike, CommentLike
+from .models import Comment, Profile, PostLike, CommentLike, Notification
 
 User = get_user_model()
 
@@ -311,3 +312,36 @@ def toggle_comment_like(request, post_id, comment_id):
             'likes_count': comment.likes_count,
         })
     return redirect(request.META.get('HTTP_REFERER', 'blog:post_detail'))
+
+
+@login_required
+def notifications(request):
+    all_notifications = request.user.notifications.all()
+    unread = all_notifications.filter(is_read=False)
+
+    show_unread = request.GET.get('filter') == 'unread'
+    if show_unread:
+        notif_list = unread
+    else:
+        notif_list = all_notifications
+
+    context = {
+        'notifications': notif_list,
+        'unread_count': unread.count(),
+        'show_unread': show_unread,
+    }
+    return render(request, 'blog/notifications.html', context)
+
+
+@login_required
+def mark_notification_read(request, notification_id):
+    notification = get_object_or_404(Notification, id=notification_id, user=request.user)
+    notification.is_read = True
+    notification.save()
+    return redirect('blog:notifications')
+
+
+@login_required
+def mark_all_read(request):
+    request.user.notifications.filter(is_read=False).update(is_read=True)
+    return redirect('blog:notifications')

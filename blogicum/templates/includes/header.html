@@ -7,7 +7,7 @@
         Блогикум
       </a>
       {% with request.resolver_match.view_name as view_name %}
-        <ul class="nav nav-pills">
+        <ul class="nav  nav-pills">
           <li class="nav-item">
             <a class="nav-link {% if view_name == 'pages:about' %} text-white {% endif %}" href="{% url 'pages:about' %}">
               О проекте
@@ -19,15 +19,30 @@
             </a>
           </li>
           {% if user.is_authenticated %}
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                🔔
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
+                <li><p class="dropdown-item text-muted">Уведомлений пока нет</p></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'blog:notifications' %}">Смотреть все уведомления</a></li>
+              </ul>
+            </li>
             <div class="btn-group" role="group" aria-label="Basic outlined example">
-              <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset" href="{% url 'blog:create_post' %}">Написать пост</a></button>
-              <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset" href="{% url 'blog:profile' user.username %}">{{ user.username }}</a></button>
-              <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset" href="{% url 'logout' %}">Выйти</a></button>
+              <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset"
+                  href="{% url 'blog:create_post' %}">Написать пост</a></button>
+              <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset"
+                  href="{% url 'blog:profile' user.username %}">{{ user.username }}</a></button>
+              <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset"
+                  href="{% url 'logout' %}">Выйти</a></button>
             </div>
           {% else %}
             <div class="btn-group" role="group" aria-label="Basic outlined example">
-              <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset" href="{% url 'login' %}">Войти</a></button>
-              <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset" href="{% url 'blog:registration' %}">Регистрация</a></button>
+              <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset"
+                  href="{% url 'login' %}">Войти</a></button>
+              <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset"
+                  href="{% url 'blog:registration' %}">Регистрация</a></button>
             </div>
           {% endif %}
         </ul>

@@ -134,6 +134,27 @@ class Comment(models.Model):
         verbose_name_plural = 'Комментарии'
 
 
+
+class Notification(models.Model):
+    class Type(models.TextChoices):
+        LIKE_POST = 'like_post', 'Лайк на посте'
+        LIKE_COMMENT = 'like_comment', 'Лайк на комментарии'
+        NEW_COMMENT = 'new_comment', 'Новый комментарий'
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    type = models.CharField(max_length=20, choices=Type.choices)
+    text = models.CharField(max_length=255)      # Краткое описание (можно формировать динамически)
+    link = models.CharField(max_length=255)      # Ссылка на объект (например, post/<id>)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.user}: {self.text}'
+
+
 class PostLike(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE,
@@ -181,6 +202,12 @@ class CommentLike(models.Model):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     avatar = models.ImageField('Аватар', upload_to='avatars/', blank=True, null=True)
+    bio = models.CharField(
+        max_length=256,
+        blank=True,
+        verbose_name='О себе',
+        help_text='Расскажите немного о себе (до 256 символов)'
+    )
 
     def __str__(self):
         return f'Профиль {self.user.username}'

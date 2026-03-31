@@ -80,3 +80,20 @@ a:hover {
     background-color: #ff99bb;
     border-color: #ff99bb;
 }
+
+.nav-link,
+.dropdown-toggle,
+.dropdown-item {
+    color: #ff6699 !important;
+}
+
+.nav-link:hover,
+.dropdown-toggle:hover,
+.dropdown-item:hover {
+    color: #ff3366 !important;
+    background-color: #ffe6f0 !important;
+}
+
+.dropdown-menu {
+    border-color: #ffccdd;
+}

@@ -20,6 +20,9 @@
           <li class="list-group-item text-muted">Регистрация: {{ profile_user.date_joined }}</li>
           <li class="list-group-item text-muted">Роль: {% if profile_user.is_staff %}Админ{% else %}Пользователь{% endif %}</li>
         </ul>
+        {% if profile.bio %}
+          <p class="lead mb-3">{{ profile.bio|linebreaksbr }}</p>
+        {% endif %}
         <ul class="list-group list-group-horizontal justify-content-start">
           {% if user.is_authenticated and request.user == profile_user %}
           <a class="btn btn-sm text-muted" href="{% url 'blog:edit_profile' %}">Редактировать профиль</a>
