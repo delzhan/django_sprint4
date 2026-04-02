@@ -20,4 +20,6 @@ urlpatterns = [
     path('posts/<int:post_id>/like/', views.toggle_post_like, name='toggle_post_like'),
     path('posts/<int:post_id>/comment/<int:comment_id>/like/', views.toggle_comment_like, name='toggle_comment_like'),
     path('notifications/', views.notifications, name='notifications'),
+    path('notifications/<int:notification_id>/read/', views.mark_notification_read, name='mark_notification_read'),
+    path('notifications/read-all/', views.mark_all_read, name='mark_all_read'),
 ]

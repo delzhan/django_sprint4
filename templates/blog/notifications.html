@@ -1,8 +1,38 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Уведомления{% endblock %}
 {% block content %}
-  <div class="container mt-4">
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>Уведомления</h1>
-    <p class="text-muted">Здесь будут появляться ваши уведомления.</p>
+    <div>
+      <a href="?filter={% if show_unread %}all{% else %}unread{% endif %}" class="btn btn-sm btn-outline-secondary me-2">
+        {% if show_unread %}Показать все{% else %}Показать непрочитанные{% endif %}
+      </a>
+      {% if unread_count > 0 %}
+      <a href="{% url 'blog:mark_all_read' %}" class="btn btn-sm btn-outline-primary">Отметить все прочитанными</a>
+      {% endif %}
+    </div>
   </div>
+
+  {% if notifications %}
+    <div class="list-group">
+      {% for notif in notifications %}
+      <div class="list-group-item list-group-item-action {% if not notif.is_read %}unread-notification{% endif %}">
+        <div class="d-flex w-100 justify-content-between align-items-center">
+          <a href="{{ notif.link }}" class="text-decoration-none flex-grow-1 me-2">
+            <p class="mb-1">{{ notif.text }}</p>
+            <small class="text-muted">{{ notif.created_at|date:"d E Y, H:i" }}</small>
+          </a>
+          {% if not notif.is_read %}
+          <a href="{% url 'blog:mark_notification_read' notif.id %}" class="btn btn-sm btn-outline-pink">Прочитано</a>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-muted">У вас нет уведомлений.</p>
+  {% endif %}
+</div>
 {% endblock %}

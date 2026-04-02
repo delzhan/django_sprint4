@@ -15,7 +15,7 @@ def create_post_like_notification(sender, instance, created, **kwargs):
             user=author,
             type=Notification.Type.LIKE_POST,
             text=f'{instance.user.username} лайкнул ваш пост "{post.title[:50]}"',
-            link=reverse('post_detail', args=[post.id])
+            link=reverse('blog:post_detail', args=[post.id])
         )
 
 
@@ -30,7 +30,7 @@ def create_comment_like_notification(sender, instance, created, **kwargs):
             user=author,
             type=Notification.Type.LIKE_COMMENT,
             text=f'{instance.user.username} лайкнул ваш комментарий',
-            link=reverse('post_detail', args=[comment.post.id]) + f'#comment-{comment.id}'
+            link=reverse('blog:post_detail', args=[comment.post.id]) + f'#comment-{comment.id}'
         )
 
 
@@ -45,5 +45,5 @@ def create_comment_notification(sender, instance, created, **kwargs):
             user=author,
             type=Notification.Type.NEW_COMMENT,
             text=f'{instance.author.username} прокомментировал ваш пост "{post.title[:50]}"',
-            link=reverse('post_detail', args=[post.id]) + f'#comment-{instance.id}'
+            link=reverse('blog:post_detail', args=[post.id]) + f'#comment-{instance.id}'
         )

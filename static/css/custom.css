@@ -97,3 +97,33 @@ a:hover {
 .dropdown-menu {
     border-color: #ffccdd;
 }
+
+/* Индикатор непрочитанных уведомлений */
+.notification-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 8px;
+    height: 8px;
+    background-color: #dc3551;
+    border-radius: 50%;
+    transform: translate(30%, -30%);
+    box-shadow: 0 0 0 1px white;
+}
+
+/* Непрочитанное уведомление – нежно-розовый фон */
+.unread-notification {
+    background-color: #ffe4e1 !important; /* нежно-розовый */
+}
+
+/* Кнопка "Прочитано" – подчёркивание и ярко-розовый текст */
+.btn-outline-pink {
+    color: #ff69b4 !important;
+    text-decoration: underline !important;
+    background-color: transparent !important;
+    border-color: transparent !important;
+}
+.btn-outline-pink:hover {
+    color: #ff1493 !important;
+    text-decoration: underline !important;
+}

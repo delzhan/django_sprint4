@@ -2,9 +2,8 @@ import json
 from datetime import date
 
 from django.contrib.auth import get_user_model, login
-from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.db.models import Count, Exists, OuterRef, Q, Value, BooleanField
+from django.db.models import Count, Exists, OuterRef, Q, Value, BooleanField, F
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
@@ -86,7 +85,6 @@ def post_detail(request, id):
         if request.user != post.author:
             raise Http404("Пост не найден")
 
-    # Аннотируем is_liked для поста
     if request.user.is_authenticated:
         post.is_liked = PostLike.objects.filter(user=request.user, post=post).exists()
     else:
@@ -274,15 +272,16 @@ def delete_comment(request, post_id, comment_id):
 def toggle_post_like(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     like = PostLike.objects.filter(user=request.user, post=post)
+
     if like.exists():
         like.delete()
-        post.likes_count -= 1
         liked = False
     else:
         PostLike.objects.create(user=request.user, post=post)
-        post.likes_count += 1
         liked = True
-    post.save()
+
+    post.likes_count = post.likes.count()
+    post.save(update_fields=['likes_count'])
 
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return JsonResponse({
@@ -296,15 +295,16 @@ def toggle_post_like(request, post_id):
 def toggle_comment_like(request, post_id, comment_id):
     comment = get_object_or_404(Comment, id=comment_id, post_id=post_id)
     like = CommentLike.objects.filter(user=request.user, comment=comment)
+
     if like.exists():
         like.delete()
-        comment.likes_count -= 1
         liked = False
     else:
         CommentLike.objects.create(user=request.user, comment=comment)
-        comment.likes_count += 1
         liked = True
-    comment.save()
+
+    comment.likes_count = comment.likes.count()
+    comment.save(update_fields=['likes_count'])
 
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return JsonResponse({

@@ -7,7 +7,7 @@
         Блогикум
       </a>
       {% with request.resolver_match.view_name as view_name %}
-        <ul class="nav  nav-pills">
+        <ul class="nav nav-pills">
           <li class="nav-item">
             <a class="nav-link {% if view_name == 'pages:about' %} text-white {% endif %}" href="{% url 'pages:about' %}">
               О проекте
@@ -20,13 +20,31 @@
           </li>
           {% if user.is_authenticated %}
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <a class="nav-link dropdown-toggle position-relative" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 🔔
+                {% if unread_notifications_count > 0 %}
+                  <span style="position: absolute; bottom: 0; left: 0; width: 8px; height: 8px; background-color: #ff6699d3; border-radius: 50%; transform: translate(30%, 30%);"></span>
+                {% endif %}
               </a>
-              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
-                <li><p class="dropdown-item text-muted">Уведомлений пока нет</p></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="{% url 'blog:notifications' %}">Смотреть все уведомления</a></li>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown" style="min-width: 280px;">
+                {% if recent_notifications %}
+                  {% for notif in recent_notifications %}
+                    <li>
+                      <a class="dropdown-item {% if not notif.is_read %}fw-bold{% endif %}" href="{{ notif.link }}">
+                        {{ notif.text|truncatechars:50 }}
+                        <br>
+                        <small class="text-muted">{{ notif.created_at|date:"d E Y, H:i" }}</small>
+                      </a>
+                    </li>
+                    {% if not forloop.last %}<li><hr class="dropdown-divider"></li>{% endif %}
+                  {% endfor %}
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item text-center" href="{% url 'blog:notifications' %}">Смотреть все уведомления</a></li>
+                {% else %}
+                  <li><p class="dropdown-item text-muted">Уведомлений пока нет</p></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item text-center" href="{% url 'blog:notifications' %}">Смотреть все уведомления</a></li>
+                {% endif %}
               </ul>
             </li>
             <div class="btn-group" role="group" aria-label="Basic outlined example">
